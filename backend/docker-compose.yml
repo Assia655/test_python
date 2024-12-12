@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: items_db
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo_db
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+
+  microservice1:
+    build:
+      context: ./microservice1
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  microservice2:
+    build:
+      context: ./microservice2
+    ports:
+      - "8002:8000"
+    depends_on:
+      - mongo
+      - microservice1
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+
+#docker-compose up --build
